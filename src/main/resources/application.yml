@@ -1,9 +1,0 @@
-server:
-  port: 8080
-spring:
-  datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://8.210.225.223/huibodb?useSSL=false&useUnicode=true&characterEncoding=utf8
-    username: root
-    password: Mhf0129@
-

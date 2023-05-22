@@ -18,23 +18,33 @@ public class HuiBoUserInfoDto {
     private HuiBoUserInfoMapper huiBoUserInfoMapper;
 
 
-
-    public List<HuiBoUserInfo>  selectAll(){
+    public List<HuiBoUserInfo> selectAll() {
         return huiBoUserInfoMapper.selectList(null);
     }
 
-    public HuiBoUserInfo selectByOpenid(String openId)  {
-        QueryWrapper<HuiBoUserInfo> queryWrapper= new QueryWrapper<>();
-        queryWrapper.eq("open_id",openId);
+    public HuiBoUserInfo selectByOpenid(String openId) {
+        QueryWrapper<HuiBoUserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("open_id", openId);
         List<HuiBoUserInfo> huiBoUserInfos = huiBoUserInfoMapper.selectList(queryWrapper);
 
         return huiBoUserInfos.stream().findAny().orElseThrow(RuntimeException::new);
     }
-    public HuiBoUserInfo insertOneForOpenId(String openId){
+
+    public HuiBoUserInfo insertOneForOpenIdAndAvatar(String openId, String avatarUrl) {
         HuiBoUserInfo huiBoUserInfo = new HuiBoUserInfo();
         huiBoUserInfo.setOpenId(openId);
+        huiBoUserInfo.setAvatarSrc(avatarUrl);
 
         huiBoUserInfoMapper.insert(huiBoUserInfo);
+        return huiBoUserInfo;
+    }
+
+    public HuiBoUserInfo updateAvatarById(HuiBoUserInfo huiBoUserInfo, String avatar) {
+        huiBoUserInfo.setAvatarSrc(avatar);
+        int res = huiBoUserInfoMapper.updateById(huiBoUserInfo);
+        if (res < 1) {
+            throw new RuntimeException();
+        }
         return huiBoUserInfo;
     }
 }

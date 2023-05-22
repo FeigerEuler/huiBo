@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.mhh.huibo.dbservice.dto.HuiBoUserInfoDto;
 import com.mhh.huibo.entity.HuiBoUserInfo;
 import com.mhh.huibo.utils.http.HttpUtils;
+import com.mhh.huibo.vo.entity.Resp;
+import com.mysql.jdbc.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,25 +23,31 @@ public class ApiController {
 
     @PostMapping("/login")
     @ResponseBody
-    public String  login(@RequestBody String body) throws IOException {
+    public Resp login(@RequestBody String body) throws IOException {
         System.out.println("login info" + body);
         JSONObject jsonObject = JSON.parseObject(body);
         String code = jsonObject.getString("code");
-        System.out.println(code);
+        String avatar = jsonObject.getString("avatarUrl");
 
         String getOpenidUrlTemplate = "https://api.weixin.qq.com/sns/jscode2session?appid=wxc35a9f8127ecea87&secret=f19e1d610a4e7291fc47129de6e8d02f&js_code=CODE&grant_type=authorization_code";
-        String getOpenidUrl= getOpenidUrlTemplate.replace("CODE", code);
+        String getOpenidUrl = getOpenidUrlTemplate.replace("CODE", code);
         String rsp = HttpUtils.get(getOpenidUrl);
-        JSONObject resp= JSON.parseObject(rsp);
-        String openId = jsonObject.getString("openid");
+        JSONObject resp = JSON.parseObject(rsp);
+        String openId = resp.getString("openid");
+        System.out.println("openId=" + openId);
         HuiBoUserInfo huiBoUserInfo = null;
-        try{
+        try {
             huiBoUserInfo = huiBoUserInfoDto.selectByOpenid(openId);
-        } catch (Exception e){
-             huiBoUserInfo = huiBoUserInfoDto.insertOneForOpenId(openId);
+            if(StringUtils.isNullOrEmpty(huiBoUserInfo.getAvatarSrc())){
+                huiBoUserInfoDto.updateAvatarById(huiBoUserInfo,avatar);
+            }
+        } catch (Exception e) {
+            huiBoUserInfo = huiBoUserInfoDto.insertOneForOpenIdAndAvatar(openId,avatar);
         }
-        System.out.println(JSON.toJSONString(huiBoUserInfo));
-        return JSON.toJSONString(huiBoUserInfo);
+        System.out.println("42"+JSON.toJSONString(huiBoUserInfo));
+        Resp<HuiBoUserInfo> resp1 = new Resp<>();
+        System.out.println(JSON.toJSONString(resp1.buildSuccess(huiBoUserInfo)));
+        return null == huiBoUserInfo ? resp1.buildFail("unknown error") : resp1.buildSuccess(huiBoUserInfo);
 
     }
 }
