@@ -1,8 +1,12 @@
 package com.mhh.huibo;
 
 import com.alibaba.fastjson.JSON;
+import com.mhh.huibo.database.dto.PostDto;
+import com.mhh.huibo.database.service.PostService;
 import com.mhh.huibo.dbservice.dto.HuiBoUserInfoDto;
 import com.mhh.huibo.entity.HuiBoUserInfo;
+import com.mhh.huibo.entity.Post;
+import com.mhh.huibo.utils.http.ConvertUtils;
 import com.mhh.huibo.utils.http.HttpUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +23,18 @@ class HuiBoApplicationTests {
 
     @Resource
     public HuiBoUserInfoDto huiBoUserInfoDto;
+
+    @Resource
+   public  ConvertUtils convertUtils;
+
+    @Resource
+    public PostDto postDto;
     @Test
     void contextLoads() throws IOException {
-        System.out.println("hello world");
 
+        List<Post> posts = postDto.queryAllPosts();
 
+        System.out.println(convertUtils.toPostVos(posts));
 
     }
     @Test
